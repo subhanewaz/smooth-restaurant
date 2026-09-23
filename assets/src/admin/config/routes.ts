@@ -13,6 +13,7 @@ const Orders = lazy( () => import( '../pages/Orders' ).then( m => ( { default: m
 const Reservations = lazy( () => import( '../pages/Reservations' ).then( m => ( { default: m.Reservations } ) ) );
 const Settings = lazy( () => import( '../pages/Settings' ).then( m => ( { default: m.Settings } ) ) );
 const Shortcodes = lazy( () => import( '../pages/Shortcodes' ).then( m => ( { default: m.Shortcodes } ) ) );
+const AboutUs = lazy( () => import( '../pages/AboutUs' ).then( m => ( { default: m.AboutUs } ) ) );
 
 export const routes: RouteConfig[] = [
 	{ path: '/', label: __( 'Dashboard', 'smooth-restaurant' ), component: Dashboard },
@@ -21,4 +22,5 @@ export const routes: RouteConfig[] = [
 	{ path: '/reservations', label: __( 'Reservations', 'smooth-restaurant' ), component: Reservations },
 	{ path: '/shortcodes', label: __( 'Shortcodes', 'smooth-restaurant' ), component: Shortcodes },
 	{ path: '/settings', label: __( 'Settings', 'smooth-restaurant' ), component: Settings },
+	{ path: '/about-us', label: __( 'About Us', 'smooth-restaurant' ), component: AboutUs },
 ];

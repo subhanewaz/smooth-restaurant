@@ -54,6 +54,25 @@ class AdminMenu {
 			'dashicons-food',
 			25
 		);
+
+		add_menu_page(
+			__( 'About Us', 'smooth-restaurant' ),
+			__( 'About Us', 'smooth-restaurant' ),
+			$this->capability,
+			'smooth-restaurant-about',
+			array( $this, 'render_about_page' ),
+			'dashicons-info',
+			26
+		);
+
+		add_submenu_page(
+			'smooth-restaurant-about',
+			__( 'About Us', 'smooth-restaurant' ),
+			__( 'About Us', 'smooth-restaurant' ),
+			$this->capability,
+			'smooth-restaurant-about',
+			array( $this, 'render_about_page' )
+		);
 	}
 
 	/**
@@ -62,6 +81,15 @@ class AdminMenu {
 	 * @return void
 	 */
 	public function render_admin_page(): void {
+		echo '<div id="smooth-restaurant-admin"></div>';
+	}
+
+	/**
+	 * Render the About Us admin page container.
+	 *
+	 * @return void
+	 */
+	public function render_about_page(): void {
 		echo '<div id="smooth-restaurant-admin"></div>';
 	}
 }

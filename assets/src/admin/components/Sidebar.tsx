@@ -24,6 +24,7 @@ import {
 	CalendarDays,
 	Settings,
 	Code,
+	Info,
 	ChefHat,
 	ArrowLeftToLine,
 } from 'lucide-react';
@@ -41,6 +42,7 @@ const iconMap: Record<string, React.ComponentType<{ className?: string }>> = {
 	'/reservations': CalendarDays,
 	'/settings': Settings,
 	'/shortcodes': Code,
+	'/about-us': Info,
 };
 
 export const Sidebar = ( { collapsed, mobileOpen, onMobileClose }: SidebarProps ) => {

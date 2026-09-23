@@ -71,13 +71,19 @@ class Assets {
 			$asset['version']
 		);
 
+		$config = array(
+			'restUrl'   => esc_url_raw( rest_url() ),
+			'restNonce' => wp_create_nonce( 'wp_rest' ),
+		);
+
+		if ( 'toplevel_page_smooth-restaurant-about' === $hook ) {
+			$config['initialRoute'] = '/about-us';
+		}
+
 		wp_localize_script(
 			'smooth-restaurant-admin',
 			'smoothRestaurantAdmin',
-			array(
-				'restUrl'   => esc_url_raw( rest_url() ),
-				'restNonce' => wp_create_nonce( 'wp_rest' ),
-			)
+			$config
 		);
 
 		if ( function_exists( 'wp_set_script_translations' ) ) {
