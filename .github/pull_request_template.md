@@ -1,21 +1,45 @@
-# Summary
+# Issue
 
-<!-- What does this PR change and why? Link the Linear issue (e.g. SMO-123). -->
+- Number:
+- Link:
 
-## Gates
+## Type
+
+- [ ] Bug
+- [ ] Feature
+- [ ] Refactor
+- [ ] Docs
+
+## What changed
+
+<!-- Brief description of the change. -->
+
+## Why
+
+<!-- Reason for the change. -->
+
+## Tests and verification
 
 - [ ] `composer quality` green locally (cs → stan → unit)
 - [ ] `npm run test:js` green (if frontend touched)
 - [ ] CI workflows green on this PR
 
+<!-- Steps to verify: -->
+
+1.
+2.
+
 ## Money path
 
-Does this PR touch totals, ledger, webhooks, migrations, or repositories?
+Does this touch totals, ledger, webhooks, migrations, or repositories?
 
-- [ ] No — skip this section
-- [ ] Yes — I added the `money-path` label so the Money-Path Suites run
-- [ ] Yes — matching tests ship in this PR (required by repo money-path rules)
+- [ ] No — skip
+- [ ] Yes — `money-path` label added and matching tests ship in this PR
 
-## Evidence
+## Graphs (optional)
 
-<!-- Paste or link: JUnit/coverage artifacts from CI, wp-env smoke output, screenshots for UI. -->
+<!-- Screenshots, benchmarks, or diagrams. -->
+
+## Reviewers
+
+- Requested:
