@@ -57,6 +57,12 @@ noted.
 | `template_redirect` | `CheckoutProvider::handleCheckoutRequest` | `src/Providers/CheckoutProvider.php:66` |
 | `admin_init` | `DatabaseProvider::resumePendingMigrations` | `src/Providers/DatabaseProvider.php:62` |
 | `admin_menu` | `AdminProvider::registerMenu` | `src/Providers/AdminProvider.php:61` |
+| `admin_post_smooth_restaurant_save_menu` | `AdminProvider::handleSaveMenu` | `src/Providers/AdminProvider.php` |
+| `admin_post_smooth_restaurant_delete_menu` | `AdminProvider::handleDeleteMenu` | `src/Providers/AdminProvider.php` |
+| `admin_post_smooth_restaurant_save_item` | `AdminProvider::handleSaveItem` | `src/Providers/AdminProvider.php` |
+| `admin_post_smooth_restaurant_delete_item` | `AdminProvider::handleDeleteItem` | `src/Providers/AdminProvider.php` |
+| `admin_post_smooth_restaurant_save_modifier` | `AdminProvider::handleSaveModifier` | `src/Providers/AdminProvider.php` |
+| `admin_post_smooth_restaurant_delete_modifier` | `AdminProvider::handleDeleteModifier` | `src/Providers/AdminProvider.php` |
 | `rest_api_init` | `RestProvider::registerRoutes` | `src/Providers/RestProvider.php:61` |
 | `wp_enqueue_scripts` | `AssetsProvider::enqueueFrontend` (via `addHook()` helper) | `src/Providers/AssetsProvider.php:305` |
 | `admin_enqueue_scripts` | `AssetsProvider::enqueueAdmin` (via `addHook()` helper) | `src/Providers/AssetsProvider.php:305` |

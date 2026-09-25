@@ -388,23 +388,22 @@ final class MenuRoutes
     /**
      * Find a free slug, suffixing (-2, -3, …) past collisions.
      *
+     * Delegates to the shared MenuService::uniqueSlug() helper so REST and
+     * wp-admin share one source of truth.
+     *
      * @param int $ignoreId Row id allowed to keep its own slug (updates).
      */
     private function uniqueSlug(string $base, int $ignoreId = 0): string
     {
-        $slug = $base;
-        $suffix = 2;
-        while (true) {
-            $existing = $this->menus->findBySlug($slug);
-            if (null === $existing || (int) ($existing['id'] ?? 0) === $ignoreId) {
-                return $slug;
-            }
-            $slug = $base . '-' . $suffix;
-            $suffix++;
-            if ($suffix > 100) {
-                return $base . '-' . time();
-            }
-        }
+        return MenuService::uniqueSlug(
+            function (string $slug): ?array {
+                $row = $this->menus->findBySlug($slug);
+
+                return \is_array($row) ? $row : null;
+            },
+            $base,
+            $ignoreId
+        );
     }
 
     /**

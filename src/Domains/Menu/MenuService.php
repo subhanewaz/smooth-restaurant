@@ -72,6 +72,36 @@ final class MenuService
     {
         $this->memo = [];
     }
+
+    /**
+     * Find a free slug, suffixing (-2, -3, …) past collisions.
+     *
+     * Pure helper shared by REST and wp-admin: the caller supplies a
+     * find-by-slug lookup so uniqueness lives in one place. Mirrors the
+     * historic MenuRoutes::uniqueSlug() contract, including the 100-suffix
+     * cap with a time() fallback.
+     *
+     * @param callable(string): (array<string, mixed>|null) $findBySlug Slug lookup returning a row or null.
+     * @param string $base Base slug.
+     * @param int $ignoreId Row id allowed to keep its own slug (updates).
+     * @return string Free slug.
+     */
+    public static function uniqueSlug(callable $findBySlug, string $base, int $ignoreId = 0): string
+    {
+        $slug   = $base;
+        $suffix = 2;
+        while (true) {
+            $existing = $findBySlug($slug);
+            if (null === $existing || (int) ($existing['id'] ?? 0) === $ignoreId) {
+                return $slug;
+            }
+            $slug = $base . '-' . $suffix;
+            $suffix++;
+            if ($suffix > 100) {
+                return $base . '-' . time();
+            }
+        }
+    }
     /**
      * Format a cents price for display.
      *

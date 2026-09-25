@@ -72,9 +72,13 @@ if (! function_exists('sr_test_reset_stubs')) {
         $GLOBALS['__sr_test_bindings'] = array();
         $GLOBALS['__sr_test_cache']    = array();
         $GLOBALS['__sr_test_dbdelta']  = array();
+        $GLOBALS['__sr_test_menu_pages'] = array();
+        $GLOBALS['__sr_test_redirects']  = array();
         $GLOBALS['__sr_test_flags']    = array(
             'is_admin'   => false,
             'doing_cron' => false,
+            'nonce_pass' => true,
+            'screen_id'  => '',
         );
     }
 }
@@ -443,5 +447,265 @@ if (! function_exists('dbDelta')) {
         $GLOBALS['__sr_test_dbdelta'][] = $queries;
 
         return array();
+    }
+}
+
+if (! isset($GLOBALS['__sr_test_menu_pages']) || ! is_array($GLOBALS['__sr_test_menu_pages'])) {
+    $GLOBALS['__sr_test_menu_pages'] = array();
+}
+
+if (! isset($GLOBALS['__sr_test_redirects']) || ! is_array($GLOBALS['__sr_test_redirects'])) {
+    $GLOBALS['__sr_test_redirects'] = array();
+}
+
+if (! function_exists('add_menu_page')) {
+    /**
+     * Stub for add_menu_page(): records the slug and returns a hook suffix.
+     *
+     * @param string   $pageTitle Page title.
+     * @param string   $menuTitle Menu title.
+     * @param string   $capability Capability.
+     * @param string   $menuSlug Menu slug.
+     * @param callable $callback Callback.
+     * @return string Hook suffix.
+     */
+    function add_menu_page(
+        string $pageTitle,
+        string $menuTitle,
+        string $capability,
+        string $menuSlug,
+        callable $callback
+    ): string {
+        $GLOBALS['__sr_test_menu_pages'][] = array(
+            'type' => 'menu',
+            'slug' => $menuSlug,
+            'cap'  => $capability,
+        );
+
+        return 'toplevel_page_' . $menuSlug;
+    }
+}
+
+if (! function_exists('add_submenu_page')) {
+    /**
+     * Stub for add_submenu_page(): records the slug and returns a hook suffix.
+     *
+     * @param string   $parent Parent slug.
+     * @param string   $pageTitle Page title.
+     * @param string   $menuTitle Menu title.
+     * @param string   $capability Capability.
+     * @param string   $menuSlug Menu slug.
+     * @param callable $callback Callback.
+     * @return string Hook suffix.
+     */
+    function add_submenu_page(
+        string $parent,
+        string $pageTitle,
+        string $menuTitle,
+        string $capability,
+        string $menuSlug,
+        callable $callback
+    ): string {
+        $GLOBALS['__sr_test_menu_pages'][] = array(
+            'type'   => 'submenu',
+            'parent' => $parent,
+            'slug'   => $menuSlug,
+            'cap'    => $capability,
+        );
+
+        return 'smooth_page_' . $menuSlug;
+    }
+}
+
+if (! function_exists('get_current_screen')) {
+    /**
+     * Stub for get_current_screen(): id driven by the screen_id test flag.
+     *
+     * @return object|null
+     */
+    function get_current_screen(): mixed
+    {
+        $id = (string) ( $GLOBALS['__sr_test_flags']['screen_id'] ?? '' );
+        if ('' === $id) {
+            return null;
+        }
+
+        $screen     = new stdClass();
+        $screen->id = $id;
+
+        return $screen;
+    }
+}
+
+if (! function_exists('check_admin_referer')) {
+    /**
+     * Stub for check_admin_referer(): pass/fail driven by the nonce_pass flag.
+     *
+     * @param string $action Nonce action.
+     * @return bool
+     */
+    function check_admin_referer(string $action): bool
+    {
+        return (bool) ( $GLOBALS['__sr_test_flags']['nonce_pass'] ?? true );
+    }
+}
+
+if (! function_exists('wp_unslash')) {
+    /**
+     * Stub for wp_unslash(): strips slashes.
+     *
+     * @param mixed $value Raw value.
+     * @return mixed
+     */
+    function wp_unslash(mixed $value): mixed
+    {
+        return \is_string($value) ? \stripslashes($value) : $value;
+    }
+}
+
+if (! function_exists('sanitize_text_field')) {
+    /**
+     * Stub for sanitize_text_field().
+     *
+     * @param string $value Raw value.
+     * @return string
+     */
+    function sanitize_text_field(string $value): string
+    {
+        return trim((string) \preg_replace('/[\x00-\x1F\x7F]/', '', \strip_tags($value)));
+    }
+}
+
+if (! function_exists('sanitize_title')) {
+    /**
+     * Stub for sanitize_title().
+     *
+     * @param string $value Raw value.
+     * @return string
+     */
+    function sanitize_title(string $value): string
+    {
+        $slug = strtolower((string) \preg_replace('/[^a-z0-9]+/i', '-', $value));
+
+        return trim($slug, '-');
+    }
+}
+
+if (! function_exists('esc_html')) {
+    /**
+     * Stub for esc_html().
+     *
+     * @param string $text Raw text.
+     * @return string
+     */
+    function esc_html(string $text): string
+    {
+        return \htmlspecialchars($text, ENT_QUOTES, 'UTF-8');
+    }
+}
+
+if (! function_exists('esc_attr')) {
+    /**
+     * Stub for esc_attr().
+     *
+     * @param string $text Raw text.
+     * @return string
+     */
+    function esc_attr(string $text): string
+    {
+        return \htmlspecialchars($text, ENT_QUOTES, 'UTF-8');
+    }
+}
+
+if (! function_exists('esc_textarea')) {
+    /**
+     * Stub for esc_textarea().
+     *
+     * @param string $text Raw text.
+     * @return string
+     */
+    function esc_textarea(string $text): string
+    {
+        return \htmlspecialchars($text, ENT_QUOTES, 'UTF-8');
+    }
+}
+
+if (! function_exists('esc_url')) {
+    /**
+     * Stub for esc_url().
+     *
+     * @param string $url Raw URL.
+     * @return string
+     */
+    function esc_url(string $url): string
+    {
+        return trim($url);
+    }
+}
+
+if (! function_exists('admin_url')) {
+    /**
+     * Stub for admin_url().
+     *
+     * @param string $path Path.
+     * @return string
+     */
+    function admin_url(string $path = ''): string
+    {
+        return 'http://example.test/wp-admin/' . \ltrim($path, '/');
+    }
+}
+
+if (! function_exists('wp_safe_redirect')) {
+    /**
+     * Stub for wp_safe_redirect(): records the target instead of exiting.
+     *
+     * @param string $url Target URL.
+     * @return void
+     */
+    function wp_safe_redirect(string $url): void
+    {
+        $GLOBALS['__sr_test_redirects'][] = $url;
+    }
+}
+
+if (! function_exists('get_post')) {
+    /**
+     * Stub for get_post(): test posts driven by the test_posts flag.
+     *
+     * @param int|null $id Post id (null returns null in unit context).
+     * @return object|null
+     */
+    function get_post(?int $id = null): mixed
+    {
+        if (null === $id) {
+            return null;
+        }
+        $posts = $GLOBALS['__sr_test_flags']['test_posts'] ?? array();
+        if (isset($posts[ $id ])) {
+            $post                   = new stdClass();
+            $post->ID               = $id;
+            $post->post_type        = (string) ( $posts[ $id ]['post_type'] ?? 'post' );
+            $post->post_mime_type   = (string) ( $posts[ $id ]['mime'] ?? '' );
+            $post->post_author      = (int) ( $posts[ $id ]['author'] ?? 1 );
+            return $post;
+        }
+
+        return null;
+    }
+}
+
+if (! function_exists('wp_attachment_is_image')) {
+    /**
+     * Stub for wp_attachment_is_image().
+     *
+     * @param int $id Attachment id.
+     * @return bool
+     */
+    function wp_attachment_is_image(int $id): bool
+    {
+        $posts = $GLOBALS['__sr_test_flags']['test_posts'] ?? array();
+
+        return isset($posts[ $id ]) && 0 === \strpos((string) ( $posts[ $id ]['mime'] ?? '' ), 'image/');
     }
 }
