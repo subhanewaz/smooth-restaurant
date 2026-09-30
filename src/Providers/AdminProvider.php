@@ -13,6 +13,7 @@ namespace SmoothRestaurant\Providers;
 use SmoothRestaurant\Contracts\MenuItemRepositoryInterface;
 use SmoothRestaurant\Contracts\MenuRepositoryInterface;
 use SmoothRestaurant\Contracts\ModifierRepositoryInterface;
+use SmoothRestaurant\Core\AboutUs;
 use SmoothRestaurant\Core\Container;
 use SmoothRestaurant\Core\ServiceProvider;
 use SmoothRestaurant\Domains\Menu\MenuAdminScreen;
@@ -101,6 +102,34 @@ final class AdminProvider extends ServiceProvider
             MenuAdminScreen::PAGE_SLUG,
             array( $this, 'renderMenusPage' )
         );
+        \add_submenu_page(
+            MenuAdminScreen::MENU_SLUG,
+            'About Us',
+            'About Us',
+            MenuProvider::MANAGE_CAP,
+            AboutUs::PAGE_SLUG,
+            array( $this, 'renderAboutPage' )
+        );
+    }
+
+    /**
+     * Render the About Us screen.
+     *
+     * The capability is re-checked because add_submenu_page() only guards the
+     * menu entry, not a directly requested ?page= URL.
+     *
+     * @return void
+     */
+    public function renderAboutPage(): void
+    {
+        if (! \function_exists('current_user_can') || ! \current_user_can(MenuProvider::MANAGE_CAP)) {
+            return;
+        }
+
+        echo '<div class="wrap"><h1>' . MenuAdminScreen::esc('About Us') . '</h1>';
+        echo '<p>' . MenuAdminScreen::esc(
+            'Smooth Restaurant is a performance-focused, open-source restaurant management plugin for WordPress.'
+        ) . '</p></div>';
     }
 
     /**

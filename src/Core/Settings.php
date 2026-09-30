@@ -17,8 +17,12 @@ namespace SmoothRestaurant\Core;
  * DEFAULTS, writes persist the full array with autoload disabled. All
  * WordPress API usage is `function_exists`-guarded so unit tests without
  * WordPress run against an in-memory fallback.
+ *
+ * Extensible by subclasses: DEFAULTS and OPTION resolve through `static::`,
+ * so a feature surface can narrow the storage option it owns without
+ * redefining the shared behaviour.
  */
-final class Settings
+class Settings
 {
     /**
      * Option key holding all Smooth settings.
@@ -53,7 +57,7 @@ final class Settings
      */
     public function all(): array
     {
-        return array_merge(self::DEFAULTS, array_intersect_key($this->readStored(), self::DEFAULTS));
+        return array_merge(static::DEFAULTS, array_intersect_key($this->readStored(), static::DEFAULTS));
     }
 
     /**
@@ -65,7 +69,7 @@ final class Settings
      */
     public function get(string $key): mixed
     {
-        if (! array_key_exists($key, self::DEFAULTS)) {
+        if (! array_key_exists($key, static::DEFAULTS)) {
             throw new \InvalidArgumentException(sprintf('Unknown Smooth setting: %s.', $key));
         }
 
@@ -88,11 +92,11 @@ final class Settings
      */
     public function set(string $key, mixed $value): void
     {
-        if (! array_key_exists($key, self::DEFAULTS)) {
+        if (! array_key_exists($key, static::DEFAULTS)) {
             throw new \InvalidArgumentException(sprintf('Unknown Smooth setting: %s.', $key));
         }
 
-        $expected = gettype(self::DEFAULTS[ $key ]);
+        $expected = gettype(static::DEFAULTS[ $key ]);
         $actual   = gettype($value);
         if ($expected !== $actual) {
             throw new \InvalidArgumentException(
@@ -116,7 +120,7 @@ final class Settings
             return $this->fallback;
         }
 
-        $option = get_option(self::OPTION, array());
+        $option = get_option(static::OPTION, array());
 
         return is_array($option) ? $option : array();
     }
@@ -130,7 +134,7 @@ final class Settings
     private function writeStored(array $stored): void
     {
         if (function_exists('update_option') && function_exists('get_option')) {
-            update_option(self::OPTION, $stored, false);
+            update_option(static::OPTION, $stored, false);
 
             return;
         }
