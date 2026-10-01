@@ -121,4 +121,23 @@ final class InMemoryTableRepository implements RestaurantTableRepositoryInterfac
 
         return false;
     }
+
+    /**
+     * Return an active row by id, failing loudly when absent.
+     *
+     * Keeps tests free of nullable-offset handling for rows they just created.
+     *
+     * @param int $id Table id.
+     * @return array<string, mixed>
+     */
+    public function activeRow(int $id): array
+    {
+        $row = $this->find($id);
+
+        if (null === $row) {
+            throw new \RuntimeException(sprintf('No active table with id %d.', $id));
+        }
+
+        return $row;
+    }
 }

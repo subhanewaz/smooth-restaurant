@@ -136,12 +136,12 @@ final class RestProvider extends ServiceProvider
             array(
                 array(
                     'methods'             => 'GET',
-                    'callback'            => array( $controller, 'index' ),
+                    'callback'            => array( $controller, 'handleList' ),
                     'permission_callback' => self::requireCapability('manage_options'),
                 ),
                 array(
                     'methods'             => 'POST',
-                    'callback'            => array( $controller, 'create' ),
+                    'callback'            => array( $controller, 'handleCreate' ),
                     'permission_callback' => self::requireCapability('manage_options'),
                 ),
             )
@@ -153,7 +153,7 @@ final class RestProvider extends ServiceProvider
             array(
                 array(
                     'methods'             => 'DELETE',
-                    'callback'            => array( $controller, 'delete' ),
+                    'callback'            => array( $controller, 'handleArchive' ),
                     'permission_callback' => self::requireCapability('manage_options'),
                 ),
             )
@@ -165,7 +165,7 @@ final class RestProvider extends ServiceProvider
             array(
                 array(
                     'methods'             => 'POST',
-                    'callback'            => array( $controller, 'updateState' ),
+                    'callback'            => array( $controller, 'handleChangeState' ),
                     'permission_callback' => self::requireCapability('manage_options'),
                 ),
             )
