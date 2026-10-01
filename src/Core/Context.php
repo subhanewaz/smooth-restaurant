@@ -71,7 +71,7 @@ final class Context
             return self::CRON;
         }
 
-        if (defined('REST_REQUEST') && (bool) REST_REQUEST) {
+        if (self::isRestRequest()) {
             return self::REST;
         }
 
@@ -84,6 +84,73 @@ final class Context
         }
 
         return self::FRONTEND;
+    }
+
+    /**
+     * Whether the current request targets the REST API.
+     *
+     * `REST_REQUEST` alone is not enough: WordPress defines that constant
+     * inside `rest_api_loaded()`, which runs on `parse_request` -- long after
+     * `plugins_loaded`. Providers gated on it would never be registered on a
+     * real REST request, so this also recognises the two shapes WordPress
+     * itself resolves the REST route from:
+     * - `?rest_route=/…` (the fallback when pretty permalinks are off), and
+     * - a permalink under `/{rest_get_url_prefix()}/…`.
+     *
+     * Every WordPress call is `function_exists`-guarded so the class keeps
+     * working in unit tests that run without WordPress.
+     *
+     * @return bool True when the request should be treated as REST.
+     */
+    public static function isRestRequest(): bool
+    {
+        if (defined('REST_REQUEST') && (bool) REST_REQUEST) {
+            return true;
+        }
+
+        // phpcs:ignore WordPress.Security.NonceVerification.Recommended, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized, WordPress.Security.ValidatedSanitizedInput.MissingUnslash -- REST route detection needs no nonce; self::clean() applies wp_unslash() then sanitize_text_field() when WordPress is loaded, and the value is only inspected, never stored.
+        $restRoute = isset($_GET['rest_route']) ? self::clean($_GET['rest_route']) : '';
+
+        if ('' !== $restRoute) {
+            return true;
+        }
+
+        // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized, WordPress.Security.ValidatedSanitizedInput.MissingUnslash -- as above, read-only inspection.
+        $requestUri = isset($_SERVER['REQUEST_URI']) ? self::clean($_SERVER['REQUEST_URI']) : '';
+
+        if ('' === $requestUri || ! function_exists('rest_get_url_prefix')) {
+            return false;
+        }
+
+        $prefix = self::clean(rest_get_url_prefix());
+
+        return '' !== $prefix && str_contains($requestUri, '/' . $prefix . '/');
+    }
+
+    /**
+     * Normalize a superglobal fragment to a trimmed string.
+     *
+     * Unslashes and sanitizes when WordPress is loaded, and never throws on a
+     * non-string value (a hostile `?rest_route[]=x` must not fatal the boot).
+     *
+     * @param mixed $value Raw superglobal value.
+     * @return string Cleaned string, empty when the value is not usable.
+     */
+    private static function clean(mixed $value): string
+    {
+        if (! is_string($value)) {
+            return '';
+        }
+
+        if (function_exists('wp_unslash')) {
+            $value = wp_unslash($value);
+        }
+
+        if (function_exists('sanitize_text_field')) {
+            $value = sanitize_text_field($value);
+        }
+
+        return is_string($value) ? trim($value) : '';
     }
 
     /**

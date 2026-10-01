@@ -261,6 +261,52 @@ if (! function_exists('wp_doing_cron')) {
     }
 }
 
+if (! function_exists('rest_get_url_prefix')) {
+    /**
+     * Stub for rest_get_url_prefix(), driven by `$GLOBALS['__sr_test_rest_prefix']`.
+     *
+     * @return string
+     */
+    function rest_get_url_prefix(): string
+    {
+        $prefix = $GLOBALS['__sr_test_rest_prefix'] ?? 'wp-json';
+
+        return is_string($prefix) ? $prefix : 'wp-json';
+    }
+}
+
+if (! function_exists('wp_unslash')) {
+    /**
+     * Stub for wp_unslash(): single-level strip of slashes on strings.
+     *
+     * @param mixed $value Value to unslash.
+     * @return mixed Unslashed value.
+     */
+    function wp_unslash($value)
+    {
+        return is_string($value) ? stripslashes($value) : $value;
+    }
+}
+
+if (! function_exists('sanitize_text_field')) {
+    /**
+     * Stub for sanitize_text_field(): collapses whitespace and trims.
+     *
+     * @param mixed $str Value to sanitize.
+     * @return string Sanitized value.
+     */
+    function sanitize_text_field($str): string
+    {
+        if (is_object($str) || is_array($str)) {
+            return '';
+        }
+
+        $value = trim(strip_tags((string) $str));
+
+        return (string) preg_replace('/[\r\n\t ]+/', ' ', $value);
+    }
+}
+
 if (! function_exists('wp_enqueue_script')) {
     /**
      * Stub for wp_enqueue_script(): records the handle instead of printing.

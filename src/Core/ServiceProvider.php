@@ -154,13 +154,15 @@ abstract class ServiceProvider
     /**
      * Whether the current request is a REST request.
      *
-     * Returns false when WordPress is not loaded (unit-test frontend default).
+     * Delegates to {@see Context::isRestRequest()}, which also recognises the
+     * permalink and `?rest_route=` shapes because WordPress only defines the
+     * REST_REQUEST constant on `parse_request`, after `plugins_loaded`.
      *
      * @return bool
      */
     protected function isDoingRest(): bool
     {
-        return defined('REST_REQUEST') && (bool) REST_REQUEST;
+        return Context::isRestRequest();
     }
 
     /**

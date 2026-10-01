@@ -44,6 +44,8 @@
         <exclude-pattern>tests/bootstrap.php</exclude-pattern>
         <!-- BootMatrixTest resets the stub-harness $GLOBALS keys. -->
         <exclude-pattern>tests/Unit/Providers/BootMatrixTest.php</exclude-pattern>
+        <!-- ContextRestDetectionTest drives the REST detection stub globals. -->
+        <exclude-pattern>tests/Unit/Core/ContextRestDetectionTest.php</exclude-pattern>
     </rule>
 
     <!-- tests/Support/WpStubs.php redeclares WP-core API names (add_action,
