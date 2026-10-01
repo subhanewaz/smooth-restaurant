@@ -20,8 +20,9 @@ final class RestaurantTableRepositoryTest extends TestCase
     {
         $schema = (new RestaurantTableRepository(new RecordingWpdb()))->schema();
 
-        $this->assertStringContainsString("state varchar(32) NOT NULL DEFAULT 'free'", $schema);
+        $this->assertStringContainsString("state varchar(20) NOT NULL DEFAULT 'free'", $schema);
         $this->assertStringContainsString("status varchar(32) NOT NULL DEFAULT 'active'", $schema);
+        $this->assertStringContainsString('KEY status (status)', $schema);
     }
 
     public function test_active_tables_returns_mapped_rows(): void
@@ -69,6 +70,19 @@ final class RestaurantTableRepositoryTest extends TestCase
         $this->assertSame('wp_smooth_tables', $db->inserted[0]['table']);
         $this->assertSame(
             ['label' => 'Patio', 'seats' => 4, 'state' => 'free', 'status' => 'active'],
+            $db->inserted[0]['data']
+        );
+    }
+
+    public function test_create_accepts_an_explicit_state(): void
+    {
+        $db = new RecordingWpdb();
+
+        $id = (new RestaurantTableRepository($db))->create('Patio', 4, 'seated');
+
+        $this->assertSame(1, $id);
+        $this->assertSame(
+            ['label' => 'Patio', 'seats' => 4, 'state' => 'seated', 'status' => 'active'],
             $db->inserted[0]['data']
         );
     }

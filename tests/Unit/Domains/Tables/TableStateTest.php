@@ -65,6 +65,11 @@ final class TableStateTest extends TestCase
         $this->assertSame($expected, $from->canTransitionTo($to));
     }
 
+    public function test_initial_state_is_free(): void
+    {
+        $this->assertSame(TableState::Free, TableState::initial());
+    }
+
     public function test_all_lists_every_state(): void
     {
         $this->assertSame(

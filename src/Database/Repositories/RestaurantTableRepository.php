@@ -50,8 +50,9 @@ class RestaurantTableRepository extends BaseRepository implements RestaurantTabl
             . "label varchar(64) NOT NULL DEFAULT '',\n"
             . "seats int(11) NOT NULL DEFAULT 2,\n"
             . "status varchar(32) NOT NULL DEFAULT 'active',\n"
-            . "state varchar(32) NOT NULL DEFAULT 'free',\n"
-            . 'PRIMARY KEY  (id)';
+            . "state varchar(20) NOT NULL DEFAULT 'free',\n"
+            . "PRIMARY KEY  (id),\n"
+            . 'KEY status (status)';
     }
 
     /**
@@ -83,13 +84,13 @@ class RestaurantTableRepository extends BaseRepository implements RestaurantTabl
         return $rows[0] ?? null;
     }
 
-    public function create(string $label, int $seats): int
+    public function create(string $label, int $seats, string $state = self::STATE_FREE): int
     {
         return $this->insertRow(
             [
                 'label'  => $label,
                 'seats'  => $seats,
-                'state'  => self::STATE_FREE,
+                'state'  => $state,
                 'status' => self::STATUS_ACTIVE,
             ]
         );

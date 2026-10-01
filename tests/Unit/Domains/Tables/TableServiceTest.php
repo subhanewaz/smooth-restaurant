@@ -134,4 +134,36 @@ final class TableServiceTest extends TestCase
             (new TableService())->menuUrl('https://example.test/menu/', '  Bar   2 ')
         );
     }
+
+    public function test_menu_url_keeps_an_existing_fragment_at_the_end(): void
+    {
+        $this->assertSame(
+            'https://example.test/menu/?table=Patio#drinks',
+            (new TableService())->menuUrl('https://example.test/menu/#drinks', 'Patio')
+        );
+    }
+
+    public function test_menu_url_combines_an_existing_query_with_a_fragment(): void
+    {
+        $this->assertSame(
+            'https://example.test/menu/?x=1&table=Patio#drinks',
+            (new TableService())->menuUrl('https://example.test/menu/?x=1#drinks', 'Patio')
+        );
+    }
+
+    public function test_menu_url_does_not_duplicate_the_separator(): void
+    {
+        $this->assertSame(
+            'https://example.test/menu/?table=Patio',
+            (new TableService())->menuUrl('https://example.test/menu/?', 'Patio')
+        );
+    }
+
+    public function test_menu_url_carries_no_session_token(): void
+    {
+        $url = (new TableService())->menuUrl('https://example.test/menu/', 'Patio');
+
+        $this->assertStringNotContainsString('token', $url);
+        $this->assertStringNotContainsString('session', $url);
+    }
 }

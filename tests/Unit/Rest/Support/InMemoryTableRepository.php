@@ -71,14 +71,14 @@ final class InMemoryTableRepository implements RestaurantTableRepositoryInterfac
         return null;
     }
 
-    public function create(string $label, int $seats): int
+    public function create(string $label, int $seats, string $state = 'free'): int
     {
         $id           = $this->nextId++;
         $this->rows[] = array(
             'id'     => $id,
             'label'  => $label,
             'seats'  => $seats,
-            'state'  => 'free',
+            'state'  => $state,
             'status' => 'active',
         );
 

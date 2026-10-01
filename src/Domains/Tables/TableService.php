@@ -88,15 +88,29 @@ final class TableService
      * Build the QR menu URL for a table label.
      *
      * The `?table=` value is display-only; the menu owner decides whether to
-     * consume it.
+     * consume it. No session token is ever added. An existing query string is
+     * extended in place and an existing fragment is kept last, so a base URL
+     * such as `/menu/?x=1#drinks` becomes `/menu/?x=1&table=Patio#drinks`.
      *
      * @throws TableException When the label is invalid.
      */
     public function menuUrl(string $baseUrl, string $label): string
     {
         $normalized = $this->normalizeLabel($label);
-        $separator  = \str_contains($baseUrl, '?') ? '&' : '?';
 
-        return $baseUrl . $separator . 'table=' . \rawurlencode($normalized);
+        $fragment = '';
+        $position = \strpos($baseUrl, '#');
+        if (false !== $position) {
+            $fragment = \substr($baseUrl, $position);
+            $baseUrl  = \substr($baseUrl, 0, $position);
+        }
+
+        $separator = match (true) {
+            \str_ends_with($baseUrl, '?'), \str_ends_with($baseUrl, '&') => '',
+            \str_contains($baseUrl, '?')                                  => '&',
+            default                                                       => '?',
+        };
+
+        return $baseUrl . $separator . 'table=' . \rawurlencode($normalized) . $fragment;
     }
 }

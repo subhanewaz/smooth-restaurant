@@ -66,9 +66,10 @@ interface RestaurantTableRepositoryInterface
      *
      * @param string $label Display label.
      * @param int    $seats Seat count.
+     * @param string $state Initial operational state, free by default.
      * @return int New table id.
      */
-    public function create(string $label, int $seats): int;
+    public function create(string $label, int $seats, string $state = 'free'): int;
 
     /**
      * Set the operational state of an active table.

@@ -38,6 +38,16 @@ enum TableState: string
     }
 
     /**
+     * State assigned to a freshly created table.
+     *
+     * @return self
+     */
+    public static function initial(): self
+    {
+        return self::Free;
+    }
+
+    /**
      * States reachable directly from this one.
      *
      * @return list<self>
