@@ -1,9 +1,9 @@
 ## 1. Domain
 
-- [ ] 1.1 Add `TableState` string-backed enum (`free`, `seated`, `ordered`, `needs_bill`) with `nextStates()`, `canTransitionTo()`, and `all()`
-- [ ] 1.2 Implement `TableService`: normalize/validate a state string and expose the transition graph (free→seated→ordered→needs_bill→free; any→free; needs_bill→ordered); also normalize labels (strip tags, trim, collapse internal whitespace, 1–64 chars, reject empty) and throw a `TableException` for an invalid label or an illegal move
-- [ ] 1.3 Add a pure menu-URL builder that appends the display-only `?table=` label to a base URL
-- [ ] 1.4 Unit tests: every allowed transition, every rejected transition, `nextStates()` per state, URL label encoding
+- [x] 1.1 Add `TableState` string-backed enum (`free`, `seated`, `ordered`, `needs_bill`) with `nextStates()`, `canTransitionTo()`, and `all()`
+- [x] 1.2 Implement `TableService`: normalize/validate a state string and expose the transition graph (free→seated→ordered→needs_bill→free; any→free; needs_bill→ordered); also normalize labels (strip tags, trim, collapse internal whitespace, 1–64 chars, reject empty) and throw a `TableException` for an invalid label or an illegal move
+- [x] 1.3 Add a pure menu-URL builder that appends the display-only `?table=` label to a base URL
+- [x] 1.4 Unit tests: every allowed transition, every rejected transition, `nextStates()` per state, URL label encoding
 
 ## 2. Data
 
