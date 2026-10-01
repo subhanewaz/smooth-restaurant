@@ -9,7 +9,7 @@ jest.mock( '@wordpress/i18n', () => ( {
 	_nx: ( single: string, plural: string, count: number ) =>
 		count === 1 ? single : plural,
 	sprintf: ( format: string, ...args: unknown[] ) =>
-		format.replace( /%s/g, () => String( args.shift() ) ),
+		format.replace( /%[sd]/g, () => String( args.shift() ) ),
 } ) );
 
 // Provide minimal matchMedia for jsdom

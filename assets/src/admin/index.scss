@@ -1,0 +1,107 @@
+/**
+ * Admin styles for the Smooth dashboard, including the printable table
+ * cards (2-up A4, large label, grayscale-safe QR).
+ */
+
+.smooth-tables {
+	box-sizing: border-box;
+	max-width: 60rem;
+	padding: 1.5rem;
+	color: #1e293b;
+	font-family:
+		-apple-system,
+		BlinkMacSystemFont,
+		"Segoe UI",
+		Roboto,
+		sans-serif;
+
+	&__title {
+		margin: 0 0 1rem;
+		font-size: 1.5rem;
+	}
+
+	&__error {
+		padding: 0.5rem 0.75rem;
+		border-left: 4px solid #b91c1c;
+		background: #fef2f2;
+		color: #b91c1c;
+	}
+
+	&__create {
+		display: flex;
+		gap: 0.5rem;
+		margin-bottom: 1.25rem;
+	}
+
+	&__list {
+		width: 100%;
+		border-collapse: collapse;
+
+		th,
+		td {
+			padding: 0.5rem 0.75rem;
+			border-bottom: 1px solid #e2e8f0;
+			text-align: left;
+		}
+	}
+
+	&__state {
+		font-weight: 600;
+	}
+
+	&__actions {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 0.375rem;
+	}
+
+	&__print {
+		margin-top: 1.25rem;
+	}
+}
+
+.smooth-print-area {
+	display: none;
+}
+
+@media print {
+
+	@page {
+		size: a4 portrait;
+		margin: 12mm;
+	}
+
+	.smooth-print-area {
+		display: grid;
+		grid-template-columns: repeat(2, 1fr);
+		gap: 8mm;
+	}
+
+	.smooth-print-card {
+		box-sizing: border-box;
+		padding: 8mm 4mm;
+		border: 2px solid #000;
+		border-radius: 3mm;
+		color: #000;
+		text-align: center;
+		break-inside: avoid;
+		page-break-inside: avoid;
+	}
+
+	.smooth-print-card__label {
+		margin-bottom: 4mm;
+		font-size: 30pt;
+		font-weight: 700;
+		line-height: 1.1;
+	}
+
+	.smooth-print-card__qr svg {
+		width: 55mm;
+		height: 55mm;
+	}
+
+	.smooth-print-card__hint {
+		margin: 3mm 0 0;
+		font-size: 12pt;
+	}
+}

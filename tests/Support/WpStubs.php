@@ -43,6 +43,10 @@ if (! isset($GLOBALS['__sr_test_routes']) || ! is_array($GLOBALS['__sr_test_rout
     $GLOBALS['__sr_test_routes'] = array();
 }
 
+if (! isset($GLOBALS['__sr_test_admin_pages']) || ! is_array($GLOBALS['__sr_test_admin_pages'])) {
+    $GLOBALS['__sr_test_admin_pages'] = array();
+}
+
 if (! function_exists('sr_test_reset_stubs')) {
     /**
      * Reset hook storage, enqueue log, and context flags between tests.
@@ -55,9 +59,10 @@ if (! function_exists('sr_test_reset_stubs')) {
             'actions' => array(),
             'filters' => array(),
         );
-        $GLOBALS['__sr_test_enqueues'] = array();
-        $GLOBALS['__sr_test_routes']   = array();
-        $GLOBALS['__sr_test_flags']    = array(
+        $GLOBALS['__sr_test_enqueues']    = array();
+        $GLOBALS['__sr_test_routes']      = array();
+        $GLOBALS['__sr_test_admin_pages'] = array();
+        $GLOBALS['__sr_test_flags']       = array(
             'is_admin'   => false,
             'doing_cron' => false,
         );
@@ -333,6 +338,67 @@ if (! function_exists('home_url')) {
         $home = $GLOBALS['__sr_test_home_url'] ?? 'http://example.test';
 
         return \rtrim((string) $home, '/') . '/' . \ltrim($path, '/');
+    }
+}
+
+if (! function_exists('add_menu_page')) {
+    /**
+     * Stub for add_menu_page(): records the registration instead of rendering.
+     *
+     * @param string       $pageTitle  Page title.
+     * @param string       $menuTitle  Menu title.
+     * @param string       $capability Required capability.
+     * @param string       $menuSlug   Menu slug.
+     * @param callable     $callback   Screen renderer.
+     * @param string       $iconUrl    Menu icon.
+     * @param int|float    $position   Menu position.
+     * @return string Recorded menu slug.
+     */
+    function add_menu_page(
+        string $pageTitle,
+        string $menuTitle,
+        string $capability,
+        string $menuSlug,
+        ?callable $callback = null,
+        string $iconUrl = '',
+        int|float|null $position = null
+    ): string {
+        $GLOBALS['__sr_test_admin_pages'][] = array(
+            'page_title' => $pageTitle,
+            'menu_title' => $menuTitle,
+            'capability' => $capability,
+            'slug'       => $menuSlug,
+            'callback'   => $callback,
+        );
+
+        return $menuSlug;
+    }
+}
+
+if (! function_exists('__')) {
+    /**
+     * Stub for __() returning the untranslated string.
+     *
+     * @param string $text   Text to translate.
+     * @param string $domain Text domain.
+     * @return string
+     */
+    function __(string $text, string $domain = 'default'): string
+    {
+        return $text;
+    }
+}
+
+if (! function_exists('esc_attr')) {
+    /**
+     * Stub for esc_attr() escaping an attribute value.
+     *
+     * @param string $text Value to escape.
+     * @return string
+     */
+    function esc_attr(string $text): string
+    {
+        return \htmlspecialchars($text, ENT_QUOTES, 'UTF-8');
     }
 }
 

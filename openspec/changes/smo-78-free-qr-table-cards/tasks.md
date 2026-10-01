@@ -22,11 +22,11 @@
 
 ## 4. Admin UI
 
-- [ ] 4.1 Add `AdminProvider` constants for slug, `manage_options` capability, and root id; register the page and render `<div id="smooth-admin-root" data-screen="tables">`
-- [ ] 4.2 Build the React tables screen in `assets/src/admin` mounting on `data-screen="tables"`; use `api-fetch` for list/create/state/archive (REST root + nonce come from `api-fetch`, no localized data)
-- [ ] 4.3 Render QR cards with `qrcode.react` (`QRCodeSVG`, ~55 mm) and add a `react-to-print` print action with table selection
-- [ ] 4.4 Add the print stylesheet: 2 cards per A4 row, large label, readable in grayscale
-- [ ] 4.5 Component test: renders tables, exposes only `next_states` actions, and triggers print
+- [x] 4.1 Add `AdminProvider` constants for slug, `manage_options` capability, and root id; register the page and render `<div id="smooth-admin-root" data-screen="tables">`
+- [x] 4.2 Build the React tables screen in `assets/src/admin` mounting on `data-screen="tables"`; use `api-fetch` for list/create/state/archive (REST root + nonce come from `api-fetch`, no localized data)
+- [x] 4.3 Render QR cards with `qrcode.react` (`QRCodeSVG`, ~55 mm) and add a `react-to-print` print action with table selection
+- [x] 4.4 Add the print stylesheet: 2 cards per A4 row, large label, readable in grayscale
+- [x] 4.5 Component test: renders tables, exposes only `next_states` actions, and triggers print
 
 ## 5. Scope guards
 
