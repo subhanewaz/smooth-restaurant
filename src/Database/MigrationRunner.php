@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace SmoothRestaurant\Database;
 
+use SmoothRestaurant\Database\Repositories\RestaurantTableRepository;
+
 /**
  * Database migration runner.
  *
@@ -33,7 +35,7 @@ class MigrationRunner
     /**
      * Database schema version this plugin code understands.
      */
-    public const TARGET_VERSION = '0.1.0';
+    public const TARGET_VERSION = '0.2.0';
 
     /**
      * Registered migrations keyed by version.
@@ -83,14 +85,51 @@ class MigrationRunner
      * Default migrations for the current plugin version.
      *
      * Follow-up domain issues append their version-guarded, idempotent,
-     * additive migrations here. The runner contract and multisite loop ship
-     * now; no domain tables yet.
+     * additive migrations here. 0.2.0 creates the restaurant tables table for
+     * Free QR cards; it never creates smooth_table_sessions.
      *
      * @return array<string, callable(): void>
      */
     public static function defaults(): array
     {
-        return [];
+        return [
+            '0.2.0' => static function (): void {
+                self::createSchema();
+            },
+        ];
+    }
+
+    /**
+     * Repositories whose tables this plugin version creates.
+     *
+     * Keep this list additive and scoped. The Free QR cards change creates
+     * smooth_tables only; smooth_table_sessions is intentionally absent.
+     *
+     * @return list<class-string<BaseRepository>>
+     */
+    public static function schemaRepositories(): array
+    {
+        return [
+            RestaurantTableRepository::class,
+        ];
+    }
+
+    /**
+     * Create every registered table when WordPress is loaded.
+     *
+     * Table creation is dbDelta-managed inside each repository. Without
+     * WordPress (unit tests) dbDelta is unavailable, so this is a safe no-op
+     * instead of a hard failure.
+     */
+    private static function createSchema(): void
+    {
+        if (!\defined('ABSPATH')) {
+            return;
+        }
+
+        foreach (self::schemaRepositories() as $repository) {
+            (new $repository())->createTable();
+        }
     }
 
     /**

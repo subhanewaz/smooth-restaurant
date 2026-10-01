@@ -172,4 +172,79 @@ abstract class BaseRepository
 
         return $prepared;
     }
+
+    /**
+     * Run a prepared SELECT through the connection.
+     *
+     * @param string $query Prepared SQL.
+     * @return list<array<string, mixed>> Raw rows.
+     * @throws RepositoryException When the connection cannot read rows.
+     */
+    protected function selectRows(string $query): array
+    {
+        $db = $this->wpdb;
+        if (!\method_exists($db, 'get_results')) {
+            throw new RepositoryException('Database connection does not support get_results().');
+        }
+
+        $rows = $db->get_results($query);
+        if (!\is_array($rows)) {
+            return [];
+        }
+
+        $result = [];
+        foreach ($rows as $row) {
+            if (\is_array($row)) {
+                /** @var array<string, mixed> $row */
+                $result[] = $row;
+            }
+        }
+
+        return $result;
+    }
+
+    /**
+     * Insert one row and return the new primary key.
+     *
+     * @param array<string, mixed> $data Column => value pairs.
+     * @return int New primary key (0 when the connection reports none).
+     * @throws RepositoryException When the connection cannot insert.
+     */
+    protected function insertRow(array $data): int
+    {
+        $db = $this->wpdb;
+        if (!\method_exists($db, 'insert')) {
+            throw new RepositoryException('Database connection does not support insert().');
+        }
+
+        $inserted = $db->insert($this->getTable(), $data);
+        if (false === $inserted) {
+            throw new RepositoryException('Database insert failed.');
+        }
+
+        $vars = \get_object_vars($db);
+        $id   = $vars['insert_id'] ?? 0;
+
+        return \is_numeric($id) ? (int) $id : 0;
+    }
+
+    /**
+     * Update rows matching `$where`.
+     *
+     * @param array<string, mixed> $data  Values to write.
+     * @param array<string, mixed> $where Column => value match pairs.
+     * @return bool Whether at least one row changed.
+     * @throws RepositoryException When the connection cannot update.
+     */
+    protected function updateRows(array $data, array $where): bool
+    {
+        $db = $this->wpdb;
+        if (!\method_exists($db, 'update')) {
+            throw new RepositoryException('Database connection does not support update().');
+        }
+
+        $updated = $db->update($this->getTable(), $data, $where);
+
+        return \is_int($updated) && $updated > 0;
+    }
 }

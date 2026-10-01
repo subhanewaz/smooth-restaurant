@@ -45,4 +45,53 @@ interface RestaurantTableRepositoryInterface
      * @return void
      */
     public function createTable(): void;
+
+    /**
+     * Active tables, oldest first.
+     *
+     * @return list<array<string, mixed>> Typed rows.
+     */
+    public function activeTables(): array;
+
+    /**
+     * One active table by id, or null when absent or archived.
+     *
+     * @param int $id Table id.
+     * @return array<string, mixed>|null Typed row.
+     */
+    public function find(int $id): ?array;
+
+    /**
+     * Insert a new active table and return its id.
+     *
+     * @param string $label Display label.
+     * @param int    $seats Seat count.
+     * @return int New table id.
+     */
+    public function create(string $label, int $seats): int;
+
+    /**
+     * Set the operational state of an active table.
+     *
+     * @param int    $id    Table id.
+     * @param string $state One of the TableState values.
+     * @return bool Whether a row changed.
+     */
+    public function updateState(int $id, string $state): bool;
+
+    /**
+     * Soft-delete a table by flipping its status to archived.
+     *
+     * @param int $id Table id.
+     * @return bool Whether a row changed.
+     */
+    public function archive(int $id): bool;
+
+    /**
+     * Whether an active table already uses the label.
+     *
+     * @param string $label Display label.
+     * @return bool True when a matching active row exists.
+     */
+    public function labelExists(string $label): bool;
 }

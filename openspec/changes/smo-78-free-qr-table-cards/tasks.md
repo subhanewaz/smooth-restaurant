@@ -7,10 +7,10 @@
 
 ## 2. Data
 
-- [ ] 2.1 Add `state varchar(32) NOT NULL DEFAULT 'free'` to `RestaurantTableRepository::columnDefinitions()`; keep `status` as active/archived lifecycle
-- [ ] 2.2 Extend `RestaurantTableRepositoryInterface` + repository: list active, find by id, create `{label, seats}`, update state, archive, duplicate-label lookup
-- [ ] 2.3 Register the `smooth_tables` creation migration in `MigrationRunner::defaults()` and bump `TARGET_VERSION` `0.1.0` → `0.2.0` (create `smooth_tables` only)
-- [ ] 2.4 Add a recording wpdb test double under `tests/Unit/Database/Support` exposing `get_results`/`insert`/`update`, since `FakeWpdb` only implements `prepare()`; tests: schema includes the `state` column; repository CRUD against the recording double; migration creates the table and a rerun is a no-op; assert `smooth_table_sessions` is never created. Note `ActivatorTest` runs migrations without WordPress, where `dbDelta` is unavailable
+- [x] 2.1 Add `state varchar(32) NOT NULL DEFAULT 'free'` to `RestaurantTableRepository::columnDefinitions()`; keep `status` as active/archived lifecycle
+- [x] 2.2 Extend `RestaurantTableRepositoryInterface` + repository: list active, find by id, create `{label, seats}`, update state, archive, duplicate-label lookup
+- [x] 2.3 Register the `smooth_tables` creation migration in `MigrationRunner::defaults()` and bump `TARGET_VERSION` `0.1.0` → `0.2.0` (create `smooth_tables` only)
+- [x] 2.4 Add a recording wpdb test double under `tests/Unit/Database/Support` exposing `get_results`/`insert`/`update`, since `FakeWpdb` only implements `prepare()`; tests: schema includes the `state` column; repository CRUD against the recording double; migration creates the table and a rerun is a no-op; assert `smooth_table_sessions` is never created. Note `ActivatorTest` runs migrations without WordPress, where `dbDelta` is unavailable
 
 ## 3. REST
 
