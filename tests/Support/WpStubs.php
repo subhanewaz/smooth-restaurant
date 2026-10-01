@@ -62,6 +62,7 @@ if (! function_exists('sr_test_reset_stubs')) {
         $GLOBALS['__sr_test_enqueues']    = array();
         $GLOBALS['__sr_test_routes']      = array();
         $GLOBALS['__sr_test_admin_pages'] = array();
+        $GLOBALS['__sr_test_screen']       = null;
         $GLOBALS['__sr_test_flags']       = array(
             'is_admin'   => false,
             'doing_cron' => false,
@@ -418,6 +419,66 @@ if (! function_exists('add_menu_page')) {
         );
 
         return $menuSlug;
+    }
+}
+
+if (! function_exists('add_submenu_page')) {
+    /**
+     * Stub for add_submenu_page(): records the registration instead of rendering.
+     *
+     * @param string       $parentSlug Parent menu slug.
+     * @param string       $pageTitle  Page title.
+     * @param string       $menuTitle  Menu title.
+     * @param string       $capability Required capability.
+     * @param string       $menuSlug   Menu slug.
+     * @param callable     $callback   Screen renderer.
+     * @param int|float    $position   Menu position.
+     * @return string Recorded menu slug.
+     */
+    function add_submenu_page(
+        string $parentSlug,
+        string $pageTitle,
+        string $menuTitle,
+        string $capability,
+        string $menuSlug,
+        ?callable $callback = null,
+        int|float|null $position = null
+    ): string {
+        $GLOBALS['__sr_test_admin_pages'][] = array(
+            'parent_slug' => $parentSlug,
+            'page_title'  => $pageTitle,
+            'menu_title'  => $menuTitle,
+            'capability'  => $capability,
+            'slug'        => $menuSlug,
+            'callback'    => $callback,
+        );
+
+        return $menuSlug;
+    }
+}
+
+if (! function_exists('get_current_screen')) {
+    /**
+     * Stub for get_current_screen(): returns the screen set by sr_test_set_screen().
+     *
+     * @return object|null Current screen, null when unset.
+     */
+    function get_current_screen(): ?object
+    {
+        return $GLOBALS['__sr_test_screen'] ?? null;
+    }
+}
+
+if (! function_exists('sr_test_set_screen')) {
+    /**
+     * Set (or clear) the screen returned by the get_current_screen() stub.
+     *
+     * @param object|null $screen Screen object exposing an `id` property, or null to clear.
+     * @return void
+     */
+    function sr_test_set_screen(?object $screen): void
+    {
+        $GLOBALS['__sr_test_screen'] = $screen;
     }
 }
 

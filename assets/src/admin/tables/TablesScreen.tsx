@@ -1,18 +1,34 @@
 /**
- * Free tables admin screen.
+ * Tables & QR admin screen.
  *
  * Lists active tables, creates them, walks each table through the
- * domain-supplied `next_states` graph, archives them, and prints QR cards.
- * State transitions are never hard-coded: the buttons come from the API's
- * `next_states` for the table.
+ * domain-supplied `next_states` graph, removes them, and prints QR cards.
+ * Transition targets are never hard-coded: the select is built from the API's
+ * `next_states` for that table, plus the current state so the control always
+ * has a valid selection.
  */
-import { useCallback, useEffect, useRef, useState } from '@wordpress/element';
-import type { FormEvent } from 'react';
+import {
+	useCallback,
+	useEffect,
+	useMemo,
+	useRef,
+	useState,
+} from '@wordpress/element';
+import {
+	Button,
+	Card,
+	CardBody,
+	Notice,
+	SelectControl,
+	Spinner,
+	TextControl,
+} from '@wordpress/components';
 import { __, sprintf } from '@wordpress/i18n';
 import { useReactToPrint } from 'react-to-print';
 import { archiveTable, createTable, listTables, setTableState } from './api';
-import { TableCard } from './TableCard';
+import { QrCard } from './QrCard';
 import type { Table, TableState } from './types';
+import './tables.scss';
 
 const STATE_LABELS: Record< TableState, string > = {
 	free: __( 'Free', 'smooth-restaurant' ),
@@ -45,6 +61,26 @@ function errorMessage( error: unknown ): string {
 	return __( 'Something went wrong.', 'smooth-restaurant' );
 }
 
+interface StateOption {
+	value: string;
+	label: string;
+}
+
+/**
+ * Select options for one table: the current state plus its next states.
+ *
+ * @param table Table row.
+ * @return Select options.
+ */
+function stateOptions( table: Table ): StateOption[] {
+	const values = [ table.state, ...table.next_states ];
+
+	return values.map( ( value ) => ( {
+		value,
+		label: stateLabel( value as TableState ),
+	} ) );
+}
+
 /**
  * Render the tables screen.
  *
@@ -55,7 +91,7 @@ export function TablesScreen() {
 	const [ loading, setLoading ] = useState( true );
 	const [ error, setError ] = useState< string | null >( null );
 	const [ label, setLabel ] = useState( '' );
-	const [ seats, setSeats ] = useState( 2 );
+	const [ seats, setSeats ] = useState( '2' );
 	const [ busy, setBusy ] = useState( false );
 	const [ selected, setSelected ] = useState< number[] >( [] );
 	const printRef = useRef< HTMLDivElement >( null );
@@ -81,11 +117,11 @@ export function TablesScreen() {
 		pageStyle: '@page { size: A4 portrait; margin: 12mm; }',
 	} );
 
-	const handleCreate = async ( event: FormEvent ) => {
+	const handleCreate = async ( event: React.FormEvent ) => {
 		event.preventDefault();
 		setBusy( true );
 		try {
-			await createTable( label, seats );
+			await createTable( label, Number( seats ) );
 			setLabel( '' );
 			await reload();
 		} catch ( thrown ) {
@@ -95,10 +131,16 @@ export function TablesScreen() {
 		}
 	};
 
-	const handleState = async ( table: Table, state: TableState ) => {
+	const handleState = async ( table: Table, state: string ) => {
+		if ( state === table.state ) {
+			return;
+		}
 		setBusy( true );
 		try {
-			const updated = await setTableState( table.id, state );
+			const updated = await setTableState(
+				table.id,
+				state as TableState
+			);
 			setTables( ( current ) =>
 				current.map( ( row ) =>
 					row.id === updated.id ? updated : row
@@ -111,7 +153,7 @@ export function TablesScreen() {
 		}
 	};
 
-	const handleArchive = async ( table: Table ) => {
+	const handleRemove = async ( table: Table ) => {
 		setBusy( true );
 		try {
 			await archiveTable( table.id );
@@ -134,44 +176,57 @@ export function TablesScreen() {
 		);
 	};
 
-	const selectedTables = tables.filter( ( table ) =>
-		selected.includes( table.id )
+	const selectedTables = useMemo(
+		() => tables.filter( ( table ) => selected.includes( table.id ) ),
+		[ selected, tables ]
 	);
 
 	return (
 		<div className="smooth-tables">
 			<h1 className="smooth-tables__title">
-				{ __( 'Tables', 'smooth-restaurant' ) }
+				{ __( 'Tables & QR', 'smooth-restaurant' ) }
 			</h1>
 
-			{ error && <p className="smooth-tables__error">{ error }</p> }
+			{ error && (
+				<Notice status="error" onRemove={ () => setError( null ) }>
+					{ error }
+				</Notice>
+			) }
 
-			<form className="smooth-tables__create" onSubmit={ handleCreate }>
-				<input
-					className="smooth-tables__label"
-					type="text"
-					value={ label }
-					placeholder={ __( 'Table label', 'smooth-restaurant' ) }
-					onChange={ ( event ) => setLabel( event.target.value ) }
-				/>
-				<input
-					className="smooth-tables__seats"
-					type="number"
-					min={ 1 }
-					value={ seats }
-					onChange={ ( event ) =>
-						setSeats( Number( event.target.value ) )
-					}
-				/>
-				<button type="submit" disabled={ busy || label.trim() === '' }>
-					{ __( 'Add table', 'smooth-restaurant' ) }
-				</button>
-			</form>
+			<Card className="smooth-tables__create">
+				<CardBody>
+					<form onSubmit={ handleCreate }>
+						<TextControl
+							__next40pxDefaultSize
+							__nextHasNoMarginBottom
+							label={ __( 'Table label', 'smooth-restaurant' ) }
+							value={ label }
+							onChange={ setLabel }
+						/>
+						<TextControl
+							__next40pxDefaultSize
+							__nextHasNoMarginBottom
+							type="number"
+							min={ 1 }
+							label={ __( 'Seats', 'smooth-restaurant' ) }
+							value={ seats }
+							onChange={ setSeats }
+						/>
+						<Button
+							variant="primary"
+							type="submit"
+							disabled={ busy || label.trim() === '' }
+						>
+							{ __( 'Add table', 'smooth-restaurant' ) }
+						</Button>
+					</form>
+				</CardBody>
+			</Card>
 
 			{ loading ? (
-				<p>{ __( 'Loading tables…', 'smooth-restaurant' ) }</p>
+				<Spinner />
 			) : (
-				<table className="smooth-tables__list">
+				<table className="widefat striped smooth-tables__list">
 					<thead>
 						<tr>
 							<th scope="col">
@@ -218,29 +273,41 @@ export function TablesScreen() {
 								<td className="smooth-tables__state">
 									{ stateLabel( table.state ) }
 								</td>
-								<td className="smooth-tables__actions">
-									{ table.next_states.map( ( next ) => (
-										<button
-											key={ next }
-											type="button"
+								<td>
+									<div className="smooth-tables__actions">
+										<SelectControl
+											__next40pxDefaultSize
+											__nextHasNoMarginBottom
+											label={ sprintf(
+												/* translators: %s: table label. */
+												__(
+													'Change state for %s',
+													'smooth-restaurant'
+												),
+												table.label
+											) }
+											hideLabelFromVision
+											disabled={ busy }
+											value={ table.state }
+											options={ stateOptions( table ) }
+											onChange={ ( value: string ) =>
+												void handleState( table, value )
+											}
+										/>
+										<Button
+											isDestructive
+											variant="link"
 											disabled={ busy }
 											onClick={ () =>
-												void handleState( table, next )
+												void handleRemove( table )
 											}
 										>
-											{ stateLabel( next ) }
-										</button>
-									) ) }
-									<button
-										type="button"
-										className="smooth-tables__archive"
-										disabled={ busy }
-										onClick={ () =>
-											void handleArchive( table )
-										}
-									>
-										{ __( 'Archive', 'smooth-restaurant' ) }
-									</button>
+											{ __(
+												'Remove',
+												'smooth-restaurant'
+											) }
+										</Button>
+									</div>
 								</td>
 							</tr>
 						) ) }
@@ -248,9 +315,9 @@ export function TablesScreen() {
 				</table>
 			) }
 
-			<button
-				type="button"
+			<Button
 				className="smooth-tables__print"
+				variant="secondary"
 				disabled={ selectedTables.length === 0 }
 				onClick={ print }
 			>
@@ -259,11 +326,11 @@ export function TablesScreen() {
 					__( 'Print selected (%d)', 'smooth-restaurant' ),
 					selectedTables.length
 				) }
-			</button>
+			</Button>
 
-			<div className="smooth-print-area" ref={ printRef }>
+			<div className="smooth-qr-print" ref={ printRef }>
 				{ selectedTables.map( ( table ) => (
-					<TableCard key={ table.id } table={ table } />
+					<QrCard key={ table.id } table={ table } />
 				) ) }
 			</div>
 		</div>

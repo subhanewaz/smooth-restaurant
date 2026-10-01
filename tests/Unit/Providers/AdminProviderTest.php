@@ -3,8 +3,9 @@
 /**
  * Admin provider unit tests.
  *
- * Covers the Smooth dashboard menu registration (slug, capability) and the
- * admin bundle mount point rendered by the screen callback.
+ * Covers the Smooth dashboard menu registration (top-level page plus the
+ * Tables & QR submenu), the screen-scoped style enqueue, and the admin bundle
+ * mount point rendered by the screen callback.
  *
  * @package SmoothRestaurant
  */
@@ -34,19 +35,30 @@ final class AdminProviderTest extends TestCase
     }
 
     /**
-     * The slug must contain "smooth" so the admin asset gate matches.
+     * The constants describe the dashboard and its screen.
      *
      * @return void
      */
     public function test_constants_describe_the_dashboard(): void
     {
-        $this->assertStringContainsString('smooth', AdminProvider::SLUG);
+        $this->assertSame('smooth-tables', AdminProvider::MENU_SLUG);
         $this->assertSame('manage_options', AdminProvider::CAPABILITY);
         $this->assertSame('smooth-admin-root', AdminProvider::ROOT_ID);
+        $this->assertSame('tables', AdminProvider::SCREEN_TABLES);
     }
 
     /**
-     * registerMenu() registers the dashboard with the right capability.
+     * The slug must contain "smooth" so the admin asset gate matches.
+     *
+     * @return void
+     */
+    public function test_menu_slug_satisfies_the_asset_gate(): void
+    {
+        $this->assertStringContainsString('smooth', AdminProvider::MENU_SLUG);
+    }
+
+    /**
+     * registerMenu() registers the top-level "Smooth" page.
      *
      * @return void
      */
@@ -55,11 +67,29 @@ final class AdminProviderTest extends TestCase
         $provider = new AdminProvider(new Container());
         $provider->registerMenu();
 
-        $this->assertCount(1, $GLOBALS['__sr_test_admin_pages']);
         $page = $GLOBALS['__sr_test_admin_pages'][0];
-        $this->assertSame(AdminProvider::SLUG, $page['slug']);
+        $this->assertSame('Smooth', $page['menu_title']);
+        $this->assertSame(AdminProvider::MENU_SLUG, $page['slug']);
         $this->assertSame(AdminProvider::CAPABILITY, $page['capability']);
         $this->assertIsCallable($page['callback']);
+    }
+
+    /**
+     * The page and its submenu share one slug so the screen id is stable.
+     *
+     * @return void
+     */
+    public function test_register_menu_adds_a_tables_and_qr_submenu_on_the_same_slug(): void
+    {
+        $provider = new AdminProvider(new Container());
+        $provider->registerMenu();
+
+        $submenu = $GLOBALS['__sr_test_admin_pages'][1];
+        $this->assertSame('Tables & QR', $submenu['menu_title']);
+        $this->assertSame(AdminProvider::MENU_SLUG, $submenu['parent_slug']);
+        $this->assertSame(AdminProvider::MENU_SLUG, $submenu['slug']);
+        $this->assertSame(AdminProvider::CAPABILITY, $submenu['capability']);
+        $this->assertIsCallable($submenu['callback']);
     }
 
     /**
@@ -77,5 +107,50 @@ final class AdminProviderTest extends TestCase
 
         $this->assertStringContainsString('id="smooth-admin-root"', $markup);
         $this->assertStringContainsString('data-screen="tables"', $markup);
+    }
+
+    /**
+     * The component stylesheet loads on the tables screen.
+     *
+     * @return void
+     */
+    public function test_component_styles_enqueue_on_the_tables_screen(): void
+    {
+        sr_test_set_screen((object) array( 'id' => 'toplevel_page_smooth-tables' ));
+
+        $provider = new AdminProvider(new Container());
+        $provider->enqueueScreenStyles();
+
+        $this->assertContains(AdminProvider::COMPONENTS_STYLE, $GLOBALS['__sr_test_enqueues']['styles']);
+    }
+
+    /**
+     * No styles leak onto other wp-admin screens.
+     *
+     * @return void
+     */
+    public function test_component_styles_do_not_enqueue_elsewhere(): void
+    {
+        sr_test_set_screen((object) array( 'id' => 'dashboard' ));
+
+        $provider = new AdminProvider(new Container());
+        $provider->enqueueScreenStyles();
+
+        $this->assertSame(array(), $GLOBALS['__sr_test_enqueues']['styles'] ?? array());
+    }
+
+    /**
+     * The style callback stays safe when no screen is available.
+     *
+     * @return void
+     */
+    public function test_component_styles_are_skipped_without_a_screen(): void
+    {
+        sr_test_set_screen(null);
+
+        $provider = new AdminProvider(new Container());
+        $provider->enqueueScreenStyles();
+
+        $this->assertSame(array(), $GLOBALS['__sr_test_enqueues']['styles'] ?? array());
     }
 }

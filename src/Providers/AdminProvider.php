@@ -17,17 +17,18 @@ use SmoothRestaurant\Core\ServiceProvider;
  * Class AdminProvider
  *
  * Hooks admin screens in boot() on wp-admin requests only. Registers the
- * Smooth dashboard page and renders the mount point for the admin bundle.
+ * Smooth dashboard page with a Tables & QR submenu and renders the mount
+ * point for the admin bundle.
  */
 final class AdminProvider extends ServiceProvider
 {
     /**
-     * Admin menu slug for the Smooth dashboard.
+     * Admin menu slug shared by the top-level page and its submenu.
      *
      * Contains "smooth" so AssetsProvider's admin screen gate
      * (`str_contains($screen->id, 'smooth')`) loads the admin bundle here.
      */
-    public const SLUG = 'smooth-tables';
+    public const MENU_SLUG = 'smooth-tables';
 
     /**
      * Capability required to view and use the Smooth dashboard.
@@ -38,6 +39,19 @@ final class AdminProvider extends ServiceProvider
      * DOM id of the admin bundle mount point.
      */
     public const ROOT_ID = 'smooth-admin-root';
+
+    /**
+     * `data-screen` value the admin bundle dispatches on.
+     */
+    public const SCREEN_TABLES = 'tables';
+
+    /**
+     * Style handle for the WordPress component library.
+     *
+     * Enqueued on the tables screen only, so the bundle's own stylesheet is
+     * never paid for elsewhere in wp-admin.
+     */
+    public const COMPONENTS_STYLE = 'wp-components';
 
     /**
      * Request contexts this provider participates in.
@@ -77,11 +91,12 @@ final class AdminProvider extends ServiceProvider
         }
 
         add_action('admin_menu', array( $this, 'registerMenu' ));
+        add_action('admin_enqueue_scripts', array( $this, 'enqueueScreenStyles' ));
         $this->markBooted();
     }
 
     /**
-     * Register the Smooth dashboard admin page.
+     * Register the Smooth dashboard page and its Tables & QR submenu.
      *
      * @return void
      */
@@ -95,18 +110,55 @@ final class AdminProvider extends ServiceProvider
             __('Smooth Restaurant', 'smooth-restaurant'),
             __('Smooth', 'smooth-restaurant'),
             self::CAPABILITY,
-            self::SLUG,
+            self::MENU_SLUG,
             array( $this, 'renderScreen' ),
             'dashicons-store',
             56
         );
+
+        $this->registerSubmenu();
+    }
+
+    /**
+     * Register the "Tables & QR" submenu under the Smooth top-level page.
+     *
+     * @return void
+     */
+    public function registerSubmenu(): void
+    {
+        if (! function_exists('add_submenu_page')) {
+            return;
+        }
+
+        add_submenu_page(
+            self::MENU_SLUG,
+            __('Tables & QR', 'smooth-restaurant'),
+            __('Tables & QR', 'smooth-restaurant'),
+            self::CAPABILITY,
+            self::MENU_SLUG,
+            array( $this, 'renderScreen' )
+        );
+    }
+
+    /**
+     * Enqueue the component stylesheet on the tables screen only.
+     *
+     * @return void
+     */
+    public function enqueueScreenStyles(): void
+    {
+        if (! $this->isTablesScreen() || ! function_exists('wp_enqueue_style')) {
+            return;
+        }
+
+        wp_enqueue_style(self::COMPONENTS_STYLE);
     }
 
     /**
      * Render the admin bundle mount point.
      *
-     * The React table screen mounts on `data-screen="tables"`; asset
-     * enqueueing is owned by AssetsProvider's smooth admin screen gate.
+     * The React table screen mounts on `data-screen="tables"`; the bundle
+     * itself is enqueued by AssetsProvider's smooth admin screen gate.
      *
      * @return void
      */
@@ -117,8 +169,28 @@ final class AdminProvider extends ServiceProvider
         }
 
         printf(
-            '<div id="%s" data-screen="tables"></div>',
-            function_exists('esc_attr') ? esc_attr(self::ROOT_ID) : self::ROOT_ID
+            '<div id="%s" data-screen="%s"></div>',
+            function_exists('esc_attr') ? esc_attr(self::ROOT_ID) : self::ROOT_ID,
+            function_exists('esc_attr') ? esc_attr(self::SCREEN_TABLES) : self::SCREEN_TABLES
         );
+    }
+
+    /**
+     * Whether the current admin screen is the tables screen.
+     *
+     * @return bool
+     */
+    protected function isTablesScreen(): bool
+    {
+        if (! function_exists('get_current_screen')) {
+            return false;
+        }
+
+        $screen = get_current_screen();
+        if (! is_object($screen) || ! isset($screen->id)) {
+            return false;
+        }
+
+        return is_string($screen->id) && str_contains($screen->id, self::MENU_SLUG);
     }
 }
