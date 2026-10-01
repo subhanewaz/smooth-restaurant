@@ -176,6 +176,10 @@ abstract class BaseRepository
     /**
      * Run a prepared SELECT through the connection.
      *
+     * The `ARRAY_A` output type is mandatory. Without it wpdb returns stdClass
+     * objects, which the is_array() filter below silently drops, so every
+     * SELECT would resolve to an empty list on real WordPress.
+     *
      * @param string $query Prepared SQL.
      * @return list<array<string, mixed>> Raw rows.
      * @throws RepositoryException When the connection cannot read rows.
@@ -187,7 +191,7 @@ abstract class BaseRepository
             throw new RepositoryException('Database connection does not support get_results().');
         }
 
-        $rows = $db->get_results($query);
+        $rows = $db->get_results($query, 'ARRAY_A');
         if (!\is_array($rows)) {
             return [];
         }

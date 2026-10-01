@@ -121,4 +121,33 @@ final class RestaurantTableRepositoryTest extends TestCase
 
         $this->assertTrue($repository->labelExists('Patio'));
     }
+
+    /**
+     * Regression: reads must request the ARRAY_A output type.
+     *
+     * wpdb defaults to OBJECT, returning stdClass rows. selectRows() filters
+     * with is_array(), so a missing output type silently emptied every SELECT
+     * on real WordPress: create returned 404, the duplicate-label check never
+     * fired, lists came back empty, and state change/archive 404'd. The
+     * double now honours output types, so this fails if ARRAY_A is dropped.
+     */
+    public function test_reads_request_array_a_so_rows_are_not_dropped(): void
+    {
+        $db          = new RecordingWpdb();
+        $db->results = [
+            ['id' => '7', 'label' => 'Patio', 'seats' => '4', 'state' => 'free', 'status' => 'active'],
+        ];
+
+        $repository = new RestaurantTableRepository($db);
+
+        $this->assertSame(
+            [['id' => 7, 'label' => 'Patio', 'seats' => 4, 'state' => 'free', 'status' => 'active']],
+            $repository->activeTables()
+        );
+        $this->assertSame(
+            ['id' => 7, 'label' => 'Patio', 'seats' => 4, 'state' => 'free', 'status' => 'active'],
+            $repository->find(7)
+        );
+        $this->assertTrue($repository->labelExists('Patio'));
+    }
 }

@@ -68,13 +68,30 @@ final class RecordingWpdb
     }
 
     /**
-     * @return list<array<string, mixed>>
+     * Mirror real wpdb output types.
+     *
+     * Only `ARRAY_A` yields arrays. `OBJECT` (the wpdb default) and `ARRAY_N`
+     * must not hand back arrays, otherwise a caller that forgets the output
+     * type still passes against this double and breaks on a real site.
+     *
+     * @param string $query Prepared SQL.
+     * @param string $output One of OBJECT, ARRAY_A, ARRAY_N.
+     * @return list<array<string, mixed>>|list<object>
      */
-    public function get_results(string $query): array
+    public function get_results(string $query, string $output = 'OBJECT'): array
     {
         $this->queries[] = $query;
 
-        return $this->results;
+        if ('ARRAY_A' === $output) {
+            return $this->results;
+        }
+
+        $objects = [];
+        foreach ($this->results as $row) {
+            $objects[] = (object) $row;
+        }
+
+        return $objects;
     }
 
     /**
