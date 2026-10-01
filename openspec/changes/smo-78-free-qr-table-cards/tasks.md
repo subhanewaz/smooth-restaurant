@@ -30,8 +30,8 @@
 
 ## 5. Scope guards
 
-- [ ] 5.1 Confirm `TableSessionRepository`, sessions, and session-tagged orders are untouched and Free creates no session (record the plain-token concern on SMO-94 in Linear)
-- [ ] 5.2 Confirm no rewrite rule, shortcode, or block is added, and no tables are seeded
+- [x] 5.1 Confirm `TableSessionRepository`, sessions, and session-tagged orders are untouched and Free creates no session (record the plain-token concern on SMO-94 in Linear)
+- [x] 5.2 Confirm no rewrite rule, shortcode, or block is added, and no tables are seeded
 
 ## 6. Verification
 
