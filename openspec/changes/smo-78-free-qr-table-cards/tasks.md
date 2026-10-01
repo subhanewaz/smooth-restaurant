@@ -35,7 +35,7 @@
 
 ## 6. Verification
 
-- [ ] 6.1 `composer quality` green (PHPCS, PHPStan, unit suite)
-- [ ] 6.2 `npm run test:js` and `npm run build` green (admin bundle + print CSS compile)
+- [ ] 6.1 `composer quality` green (PHPCS, PHPStan, unit suite) — PHPCS and PHPStan are clean; the only failing assertion is the pre-existing, unrelated `Money::fromFloat` binary float edge in `tests/Unit/Domains/Shared/MoneyTest.php:82` (fails on PHP 8.2/8.3, predates this branch). Not ticked because the gate is not literally green.
+- [x] 6.2 `npm run test:js` and `npm run build` green (admin bundle + print CSS compile) — 2 suites / 19 tests green; admin, frontend and blocks all compile. Also verified `npm run lint:js` and `npm run lint:css` clean.
 - [ ] 6.3 Manual pass: create tables, walk the state graph via the UI, print cards and confirm 2-up A4 with legible labels; since `/menu` does not exist until SMO-105, confirm the printed QR encodes `<menu url>?table=<label>` and that no `smooth_table_sessions` row appears
 - [ ] 6.4 On `wp-env`, call every `/smooth/v1/tables` route as an admin (and once logged out) and confirm they are registered and return `200`/`201`/`400`/`401`/`404`/`409` as expected; unit tests cannot prove routes register on real WordPress
