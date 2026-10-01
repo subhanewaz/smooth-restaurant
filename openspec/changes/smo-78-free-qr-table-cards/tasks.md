@@ -14,11 +14,11 @@
 
 ## 3. REST
 
-- [ ] 3.1 Add `src/Rest/TablesController.php`: `GET /tables`, `POST /tables`, `POST /tables/<id>/state`, `DELETE /tables/<id>`; include `next_states` and `qr_url` on each table
-- [ ] 3.2 Bind `TablesController` in `RestProvider::register()` via a closure using `new TableService()` and `new RestaurantTableRepository()` (TablesProvider stays frontend-only)
-- [ ] 3.3 Register routes in `RestProvider::registerRoutes()` with `requireCapability('manage_options')`; map errors to 400 invalid, 404 not found, 409 duplicate label
-- [ ] 3.4 Resolve `qr_url` from `home_url('/menu/')` and the `smooth_qr_menu_url` filter (documented `@since`/`@param`/`@return`/`@example`); append the label for display only
-- [ ] 3.5 Unit tests: route registration, capability, each status code, `next_states` per state, `qr_url` default + filter override
+- [x] 3.1 Add `src/Rest/TablesController.php`: `GET /tables`, `POST /tables`, `POST /tables/<id>/state`, `DELETE /tables/<id>`; include `next_states` and `qr_url` on each table
+- [x] 3.2 Bind `TablesController` in `RestProvider::register()` via a closure using `new TableService()` and `new RestaurantTableRepository()` (TablesProvider stays frontend-only)
+- [x] 3.3 Register routes in `RestProvider::registerRoutes()` with `requireCapability('manage_options')`; map errors to 400 invalid, 404 not found, 409 duplicate label
+- [x] 3.4 Resolve `qr_url` from `home_url('/menu/')` and the `smooth_qr_menu_url` filter (documented `@since`/`@param`/`@return`/`@example`); append the label for display only
+- [x] 3.5 Unit tests: route registration, capability, each status code, `next_states` per state, `qr_url` default + filter override
 
 ## 4. Admin UI
 

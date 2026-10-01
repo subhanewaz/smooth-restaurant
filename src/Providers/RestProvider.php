@@ -12,12 +12,15 @@ namespace SmoothRestaurant\Providers;
 
 use SmoothRestaurant\Core\Container;
 use SmoothRestaurant\Core\ServiceProvider;
+use SmoothRestaurant\Database\Repositories\RestaurantTableRepository;
+use SmoothRestaurant\Domains\Tables\TableService;
+use SmoothRestaurant\Rest\TablesController;
 
 /**
  * Class RestProvider
  *
- * Hooks REST route registration in boot() on REST requests only.
- * Shell: route wiring lands with the REST follow-up issue.
+ * Hooks REST route registration in boot() on REST requests only and binds
+ * the tables controller in register() (bind-only).
  */
 final class RestProvider extends ServiceProvider
 {
@@ -85,13 +88,21 @@ final class RestProvider extends ServiceProvider
      * Register services with the container.
      *
      * Bind-only: no hooks, no database access, no translation calls.
-     * Shell: no REST bindings yet.
      *
      * @param Container $container The DI container.
      * @return void
      */
     public function register(Container $container): void
     {
+        $container->singleton(
+            TablesController::class,
+            static function (): TablesController {
+                return new TablesController(
+                    new TableService(),
+                    new RestaurantTableRepository()
+                );
+            }
+        );
     }
 
     /**
@@ -113,11 +124,51 @@ final class RestProvider extends ServiceProvider
     /**
      * Register REST routes.
      *
-     * Shell: real route wiring lands with the REST follow-up issue.
-     *
      * @return void
      */
     public function registerRoutes(): void
     {
+        $controller = $this->container->make(TablesController::class);
+
+        register_rest_route(
+            self::NAMESPACE,
+            '/tables',
+            array(
+                array(
+                    'methods'             => 'GET',
+                    'callback'            => array( $controller, 'index' ),
+                    'permission_callback' => self::requireCapability('manage_options'),
+                ),
+                array(
+                    'methods'             => 'POST',
+                    'callback'            => array( $controller, 'create' ),
+                    'permission_callback' => self::requireCapability('manage_options'),
+                ),
+            )
+        );
+
+        register_rest_route(
+            self::NAMESPACE,
+            '/tables/(?P<id>\d+)',
+            array(
+                array(
+                    'methods'             => 'DELETE',
+                    'callback'            => array( $controller, 'delete' ),
+                    'permission_callback' => self::requireCapability('manage_options'),
+                ),
+            )
+        );
+
+        register_rest_route(
+            self::NAMESPACE,
+            '/tables/(?P<id>\d+)/state',
+            array(
+                array(
+                    'methods'             => 'POST',
+                    'callback'            => array( $controller, 'updateState' ),
+                    'permission_callback' => self::requireCapability('manage_options'),
+                ),
+            )
+        );
     }
 }

@@ -58,6 +58,15 @@
         <exclude-pattern>tests/bootstrap.php</exclude-pattern>
         <exclude-pattern>tests/*/bootstrap.php</exclude-pattern>
     </rule>
+    <!-- WpStubs redefines WP-core classes (WP_Error, WP_REST_Request, ...) in
+         the global namespace with their canonical names; both are required to
+         mirror the WordPress API. -->
+    <rule ref="PSR1.Classes.ClassDeclaration.MissingNamespace">
+        <exclude-pattern>tests/Support/WpStubs.php</exclude-pattern>
+    </rule>
+    <rule ref="Squiz.Classes.ValidClassName">
+        <exclude-pattern>tests/Support/WpStubs.php</exclude-pattern>
+    </rule>
 
     <!-- Tests follow WordPress PHPUnit idiom: snake_case test_* methods and
          doubles colocated with their test (including wpdb-shaped method names
