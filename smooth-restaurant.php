@@ -59,6 +59,9 @@ spl_autoload_register(function (string $class): void {
 	}
 });
 
+// About Us module
+require_once SR_PLUGIN_DIR . 'about-us/about-us.php';
+
 // Activation hook
 register_activation_hook(__FILE__, [\SmoothRestaurant\Core\Activator::class, 'activate']);
 
